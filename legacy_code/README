@@ -1,0 +1,30 @@
+Some comments regarding the files attached in this folder:
+
+- The joint_trajectory_action_controller_utils.* file contains all the spline sampling and splicing code factored out of
+  the JointTrajectoryActionController.* files. When I did the split I wasn't entirely happy of how I ended up cutting
+  the cake, so there's ample room for improvement there. Still it's much better than our initial port of the now
+  deprecated JointSplineTrajectoryController (and the pr2 implementations), which was a big beast with methods doing all
+  sorts of things and lengths ranging in the hundreds of lines, yuck!.
+
+- The JointTrajectoryActionController has feature parity with the pr2-equivalent EXCEPT that it does not support
+  wrapping joints. I never got around to adding it, as we don't have them.
+
+- The code has been tested in Xenomai and does not cause mode switches under normal operation.
+  NOTE: There's a few places where unexpected situations occur and non-realtime log statements are issued.
+  This should be fixed using Orocos RTT's realtime logger, which I haven't tried yet.
+
+- Code is decently commented, and uses extensively the NOTE, TODO, and HACK keywords, so grep them out to find out the
+  places where your eyes might bleed ;-)
+
+- It's a component-based design, so _everything_ is a component. You know where I'm coming from...
+
+- The code depends on Orocos RTT 1.12, which means that there's a lot more red tape code than what you currently have in
+  2.x, which is a blessing.
+
+- Missing source dependencies are very few and probably irrelevant.
+
+
+Typical file structure used in the controller manager and controllers:
+
+foo.[h|cpp]    -> component implementation. Hard-realtime scheduled.
+fooRos.[h|cpp] -> component implementing foo's ROS bindings, soft-realtime scheduled. Has own CallbackQueue.
